@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Forge | AI Sprite Animator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .forge-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .drop-zone {
+            aspect-ratio: 1;
+            border: 2px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .drop-zone:hover {
+            border-color: var(--accent-color);
+            background: rgba(56, 189, 248, 0.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .drop-zone img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            z-index: 2;
+        }
+
+        .drop-zone .placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        textarea {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            font-family: inherit;
+            resize: none;
+            height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .forge-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #0ea5e9 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: auto;
+        }
+
+        .forge-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px var(--accent-glow);
+        }
+
+        .forge-btn:active {
+            transform: translateY(0);
+        }
+
+        .forge-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #result-container {
+            margin-top: 2rem;
+            border-radius: 16px;
+            overflow: hidden;
+            background: black;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading-bar {
+            height: 4px;
+            background: #1e293b;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        @media (max-width: 768px) {
+            .forge-card {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Video Forge</h1>
+            <p class="subtitle">Animate your character sprites with AI motion</p>
+        </header>
+
+        <main class="forge-card">
+            <div class="upload-section">
+                <label>Sprite Image</label>
+                <div class="drop-zone" id="drop-zone">
+                    <div class="placeholder" id="placeholder">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <p style="margin-top: 10px">Drop Sprite Here</p>
+                    </div>
+                    <img id="preview" src="" alt="" style="display:none">
+                </div>
+                <input type="file" id="file-input" style="display:none" accept="image/*">
+            </div>
+
+            <div class="controls-section">
+                <div class="input-group">
+                    <label>Motion Prompt</label>
+                    <textarea id="prompt" placeholder="Describe the action... (e.g. A character performing a walking loop, stationary and centered, high quality)"></textarea>
+                </div>
+                
+                <button class="forge-btn" id="forge-btn">ANIME SPRITE</button>
+
+                <div class="loader" id="loader">
+                    <p id="status-text">Forging Video...</p>
+                    <div class="loading-bar">
+                        <div class="loading-progress" id="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="result-container">
+            <video id="result-video" controls loop autoplay></video>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const placeholder = document.getElementById('placeholder');
+        const forgeBtn = document.getElementById('forge-btn');
+        const promptInput = document.getElementById('prompt');
+        const loader = document.getElementById('loader');
+        const progressBar = document.getElementById('progress-bar');
+        const resultContainer = document.getElementById('result-container');
+        const resultVideo = document.getElementById('result-video');
+        const statusText = document.getElementById('status-text');
+
+        let selectedFile = null;
+
+        dropZone.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        };
+
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--accent-color)';
+        };
+
+        dropZone.ondragleave = () => {
+            dropZone.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+        };
+
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        };
+
+        function handleFile(file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        forgeBtn.onclick = async () => {
+            if (!selectedFile || !promptInput.value) {
+                alert('Please provide both an image and a prompt!');
+                return;
+            }
+
+            forgeBtn.disabled = true;
+            loader.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            // Artificial progress for better UX
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 90) {
+                    progress += (90 - progress) * 0.05;
+                    progressBar.style.width = `${progress}%`;
+                }
+            }, 500);
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('prompt', promptInput.value);
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Generation failed');
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    resultVideo.src = url;
+                    resultContainer.style.display = 'block';
+                    loader.style.display = 'none';
+                    forgeBtn.disabled = false;
+                    progressBar.style.width = '0%';
+                }, 500);
+
+            } catch (err) {
+                alert('Error: ' + err.message);
+                forgeBtn.disabled = false;
+                loader.style.display = 'none';
+                clearInterval(interval);
+            }
+        };
+    </script>
+</body>
+</html>

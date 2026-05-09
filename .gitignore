@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv*/
+.env
+.venv
+env/
+
+# Models (Large Binary Files)
+models/
+**/*.pth
+**/*.gguf
+**/*.bin
+**/*.ckpt
+**/*.safetensors
+**/*.onnx
+
+# Outputs
+outputs/
+test_image.png
+output_animation.mp4
+
+# ComfyUI Backend specific
+ComfyUI_Backend/user/
+ComfyUI_Backend/input/
+ComfyUI_Backend/output/
+ComfyUI_Backend/temp/
+ComfyUI_Backend/models/
+ComfyUI_Backend/custom_nodes/ComfyUI-Manager/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
