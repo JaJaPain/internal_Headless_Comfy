@@ -55,4 +55,7 @@ data = {
 - **33 frames**: ~18 mins (Best for basic walking cycles)
 - **81 frames**: ~45 mins (Final high-fidelity production)
 
-**Note**: If you provide a number that doesn't fit the `4n + 1` rule, the `WanVideoImageToVideoEncode` node will automatically round it down to the nearest valid integer.
+### Prompting for Sprite Perspectives:
+- **Side Walk**: `Side view, character walking from left to right, side profile, green screen`
+- **Front Walk**: `Front view, character walking towards camera, centered, green screen`
+- **Idle**: `Static character, subtle breathing animation, side view, green screen`
