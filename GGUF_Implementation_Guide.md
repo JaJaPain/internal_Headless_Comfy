@@ -29,5 +29,30 @@ This document outlines the critical issues encountered and resolved during the s
 **Solution**: Added explicit dequantization for specific non-linear weight keys in the loader to ensure they are converted to standard `torch.Tensor` objects before the model starts execution.
 
 ---
-**Status**: Stable
-**Environment**: RTX 5060 Ti (16GB), PyTorch 2.6+, CUDA 12+
+## 7. API Control & The "4n + 1" Rule
+
+To maintain stability and prevent model errors, the WanVideo 14B architecture requires that the total frame count follows the formula: **Total Frames = (4 * n) + 1**.
+
+### Recommended Frame Counts:
+- **1.0s (at 16fps)**: 17 frames
+- **2.0s (at 16fps)**: 33 frames
+- **3.0s (at 16fps)**: 49 frames
+- **5.0s (at 16fps)**: 81 frames
+
+### Adjusting via API:
+The `server.py` accepts `num_frames` and `seed` as form data. You can adjust these in your frontend or via `test_generation.py`:
+
+```python
+data = {
+    'prompt': 'Character walking loop...',
+    'num_frames': 33,  # Target: 2 seconds
+    'seed': 42
+}
+```
+
+### Performance Trade-off:
+- **13-17 frames**: ~7 mins (Fast iteration, good for pose testing)
+- **33 frames**: ~18 mins (Best for basic walking cycles)
+- **81 frames**: ~45 mins (Final high-fidelity production)
+
+**Note**: If you provide a number that doesn't fit the `4n + 1` rule, the `WanVideoImageToVideoEncode` node will automatically round it down to the nearest valid integer.
