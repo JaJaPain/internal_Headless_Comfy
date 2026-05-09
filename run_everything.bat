@@ -9,9 +9,9 @@ start /min "ComfyUI_Engine" cmd /c "cd ComfyUI_Backend && ..\venv_comfy\Scripts\
 echo Waiting for engine to warm up (this takes longer on the first run)...
 timeout /t 30 /nobreak > nul
 
-:: 3. Start our FastAPI Bridge Server
+:: 3. Start our FastAPI Bridge Server (minimized)
 echo Starting API Bridge...
-start cmd /k "venv_comfy\Scripts\python server.py"
+start /min "VideoForge_API" cmd /c "venv_comfy\Scripts\python server.py"
 
 echo.
 echo ===================================================
