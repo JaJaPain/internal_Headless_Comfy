@@ -28,7 +28,7 @@ class ComfyWrapper:
             response = requests.post(url, files=files)
             return response.json()
 
-    def generate_video(self, image_path, prompt_text, workflow_path="workflow_api.json"):
+    def generate_video(self, image_path, prompt_text, num_frames=16, seed=42, workflow_path="workflow_api.json"):
         # 1. Upload the reference image
         print(f"Uploading image {image_path} to ComfyUI...")
         upload_resp = self.upload_image(image_path)
@@ -42,6 +42,10 @@ class ComfyWrapper:
         workflow["16"]["inputs"]["positive_prompt"] = prompt_text
         # Update image (Node 58)
         workflow["58"]["inputs"]["image"] = comfy_filename
+        # Update num_frames (Node 63)
+        workflow["63"]["inputs"]["num_frames"] = num_frames
+        # Update seed (Node 35)
+        workflow["35"]["inputs"]["seed"] = seed
 
         # 3. Queue the prompt
         print("Queueing generation...")
@@ -58,9 +62,14 @@ class ComfyWrapper:
 
         # 5. Extract the output filename
         outputs = history[prompt_id]['outputs']
-        # Node 30 is Video Combine
-        video_output = outputs['30']['filenames'][0]
-        video_filename = video_output['filename']
+        # Node 30 is Video Combine (VHS) which uses 'gifs' key
+        if 'gifs' in outputs['30']:
+            video_output = outputs['30']['gifs'][0]
+        else:
+            # Fallback for other video nodes
+            video_output = outputs['30'].get('filenames', [{}])[0]
+            
+        video_filename = video_output.get('filename')
         
         # 6. Download the result
         print(f"Downloading result: {video_filename}")

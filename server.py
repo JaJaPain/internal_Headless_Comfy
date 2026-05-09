@@ -31,8 +31,8 @@ async def generate_video(
             shutil.copyfileobj(image.file, buffer)
             
         # 2. Call ComfyUI via our wrapper
-        print(f"Requesting generation for: {prompt}")
-        video_path = comfy.generate_video(temp_path, prompt)
+        print(f"Requesting generation for: {prompt} ({num_frames} frames, seed: {seed})")
+        video_path = comfy.generate_video(temp_path, prompt, num_frames=num_frames, seed=seed)
         
         # 3. Return the video file
         return FileResponse(video_path, media_type="video/mp4", filename="animation.mp4")

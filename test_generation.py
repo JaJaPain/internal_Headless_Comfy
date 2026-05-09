@@ -17,7 +17,7 @@ def test_gen():
     }
     data = {
         'prompt': 'A character performing a walking loop, centered, green background',
-        'num_frames': 16,
+        'num_frames': 33,
         'seed': 42
     }
     
